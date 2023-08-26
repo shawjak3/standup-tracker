@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { ITodo } from './App';
-import { supabase } from './supabase';
+import { Todo } from '../App';
+import { supabase } from '../api/supabase';
 import classNames from 'classnames';
 
 interface ITaskItemProps {
-  task: ITodo;
-  handleError(message: string): void;
-  handleTaskUpdate(task: ITodo, isAdding: boolean): void;
+  task: Todo;
+  handleShowErrorMessage(message: string): void;
+  handleTaskUpdate(): void;
 }
 
-function TaskItem(props: ITaskItemProps) {
-  const { task, handleError, handleTaskUpdate } = props;
+const TaskItem = (props: ITaskItemProps) => {
+  const { task, handleShowErrorMessage, handleTaskUpdate } = props;
   const [isCompleted, setIsCompleted] = useState<boolean>(task.is_complete!);
   const [completedDate, setCompletedDate] = useState<Date>(task.completed_at!);
 
@@ -21,7 +21,7 @@ function TaskItem(props: ITaskItemProps) {
   const handleCompletion = async () => {
     setIsCompleted(!isCompleted);
 
-    const { data: todo, error } = await supabase
+    const { error } = await supabase
       .from('todos')
       .update({
         is_complete: !isCompleted,
@@ -30,13 +30,9 @@ function TaskItem(props: ITaskItemProps) {
       .eq('id', task.id)
       .select();
     if (error) {
-      handleError(error.message);
+      handleShowErrorMessage(error.message);
     } else {
-      if (todo.length > 0) {
-        setIsCompleted(todo[0].is_complete);
-        setCompletedDate(todo[0].completed_at);
-        handleTaskUpdate(todo[0], true);
-      }
+      handleTaskUpdate();
     }
   };
 
@@ -50,10 +46,10 @@ function TaskItem(props: ITaskItemProps) {
         .eq('id', id)
         .select();
       if (todo) {
-        handleTaskUpdate(todo[0], false);
+        handleTaskUpdate();
       }
     } catch (error) {
-      console.log('error', error);
+      handleShowErrorMessage(error as string);
     }
   };
 
@@ -94,6 +90,6 @@ function TaskItem(props: ITaskItemProps) {
       </button>
     </li>
   );
-}
+};
 
 export default TaskItem;
