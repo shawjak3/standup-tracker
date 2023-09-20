@@ -2,13 +2,13 @@ interface ErrorProps {
   errorMessage: string;
 }
 
-const ErrorToast = (props: ErrorProps) => {
+export const ErrorToast = (props: ErrorProps) => {
   const { errorMessage } = props;
 
   if (!errorMessage) return null;
 
   return (
-    <div className='toast toast-top toast-start'>
+    <div className='toast toast-top toast-center z-50 w-max'>
       <div className='alert alert-error'>
         <div>
           <svg
@@ -30,5 +30,3 @@ const ErrorToast = (props: ErrorProps) => {
     </div>
   );
 };
-
-export default ErrorToast;

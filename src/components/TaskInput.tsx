@@ -1,22 +1,26 @@
-import { useState } from 'react';
-import { supabase } from '../api/supabase';
+import { KeyboardEvent, useState } from 'react';
+import { supabase } from '../lib/supabase';
+import { useAtomValue } from 'jotai';
+import { userAtom } from '@/lib/atoms';
 
 interface TaskInputProps {
   handleShowErrorMessage(message: string): void;
   triggerTaskFetch(): void;
 }
 
-const TaskInput = (props: TaskInputProps) => {
+export const TaskInput = (props: TaskInputProps) => {
   const { handleShowErrorMessage, triggerTaskFetch } = props;
   const [taskMessage, setTaskMessage] = useState<string>('');
+  const user = useAtomValue(userAtom);
 
-  const handleKeyDown = (event: any) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleTodoAdd();
     }
   };
 
   const handleTodoAdd = async () => {
+    if (user.id === '') return;
     if (taskMessage.length < 3) {
       handleShowErrorMessage(
         'Your todo message needs to be longer than 3 characters'
@@ -24,7 +28,7 @@ const TaskInput = (props: TaskInputProps) => {
     } else {
       let { error } = await supabase
         .from('todos')
-        .insert([{ task: taskMessage }])
+        .insert([{ task: taskMessage, user_id: user.id }])
         .select();
       if (error) {
         handleShowErrorMessage(error.message);
@@ -48,5 +52,3 @@ const TaskInput = (props: TaskInputProps) => {
     </div>
   );
 };
-
-export default TaskInput;

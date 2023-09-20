@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Todo } from '../App';
-import { supabase } from '../api/supabase';
+import { supabase } from '../lib/supabase';
 import classNames from 'classnames';
+import { useAtomValue } from 'jotai';
+import { userAtom } from '@/lib/atoms';
 
 interface ITaskItemProps {
   task: Todo;
@@ -13,12 +15,15 @@ const TaskItem = (props: ITaskItemProps) => {
   const { task, handleShowErrorMessage, handleTaskUpdate } = props;
   const [isCompleted, setIsCompleted] = useState<boolean>(task.is_complete!);
   const [completedDate, setCompletedDate] = useState<Date>(task.completed_at!);
+  const user = useAtomValue(userAtom);
 
   let taskItemClasses = classNames('flex-1', {
     'line-through': isCompleted,
   });
 
   const handleCompletion = async () => {
+    if (user.id === '') return;
+
     setIsCompleted(!isCompleted);
 
     const { error } = await supabase
@@ -28,6 +33,7 @@ const TaskItem = (props: ITaskItemProps) => {
         completed_at: !isCompleted ? new Date().toISOString() : null,
       })
       .eq('id', task.id)
+      .eq('user_id', user.id)
       .select();
     if (error) {
       handleShowErrorMessage(error.message);
@@ -37,6 +43,7 @@ const TaskItem = (props: ITaskItemProps) => {
   };
 
   const handleDelete = async (id: number) => {
+    if (user.id === '') return;
     if (!id) return;
 
     try {
@@ -44,6 +51,7 @@ const TaskItem = (props: ITaskItemProps) => {
         .from('todos')
         .delete()
         .eq('id', id)
+        .eq('user_id', user.id)
         .select();
       if (todo) {
         handleTaskUpdate();

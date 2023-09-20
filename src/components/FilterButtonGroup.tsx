@@ -5,7 +5,7 @@ interface FilterButtonGroupProps {
   handleFilterDate(daysAgo: number): void;
 }
 
-const FilterButtonGroup = (props: FilterButtonGroupProps) => {
+export const FilterButtonGroup = (props: FilterButtonGroupProps) => {
   const { activeBtn, handleFilterDate } = props;
 
   let todayBtnClasses = classnames('btn', 'btn-outline', 'btn-secondary', {
@@ -46,5 +46,3 @@ const FilterButtonGroup = (props: FilterButtonGroupProps) => {
     </div>
   );
 };
-
-export default FilterButtonGroup;
