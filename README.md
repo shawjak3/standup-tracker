@@ -11,5 +11,6 @@ This helps me know what to report on for standup meetings each morning.
 Right now the theme for the application is using the Cyberpunk theme from Daisy UI.
 
 ## Future releases to include
-- [ ] Incorporate React Query
+
+- [x] Incorporate React Query
 - [ ] Implement theme switching
