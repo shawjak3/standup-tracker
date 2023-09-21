@@ -13,4 +13,4 @@ Right now the theme for the application is using the Cyberpunk theme from Daisy 
 ## Future releases to include
 
 - [x] Incorporate React Query
-- [ ] Implement theme switching
+- [x] Implement theme switching

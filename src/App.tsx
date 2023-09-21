@@ -14,8 +14,12 @@ export interface Todo {
   user_id?: number;
 }
 
+const themes: string[] = ['cyberpunk', 'dracula', 'retro', 'acid'];
+
 function App() {
+  const initialTheme = window.localStorage.getItem('theme') || 'cyberpunk';
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [theme, setTheme] = useState<string>(initialTheme);
   const navigate = useNavigate();
   const user = useAtomValue(userAtom);
 
@@ -37,6 +41,18 @@ function App() {
     }
   };
 
+  const changeTheme = (themeName: string) => {
+    const htmlTag = document.querySelector('html');
+
+    window.localStorage.setItem('theme', themeName);
+    htmlTag?.setAttribute('data-theme', themeName);
+    setTheme(themeName);
+  };
+
+  const capitalizeString = (word: string) => {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  };
+
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
@@ -49,12 +65,40 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const currentTheme = window.localStorage.getItem('theme') || 'cyberpunk';
+    const htmlTag = document.querySelector('html');
+    htmlTag?.setAttribute('data-theme', currentTheme);
+  }, []);
+
   return (
     <>
       <ErrorToast errorMessage={errorMessage} />
 
       {user && (
         <div className='flex justify-end mr-2 mt-2'>
+          <div className='dropdown dropdown-hover mr-2'>
+            <label
+              tabIndex={0}
+              className='btn btn-secondary'
+            >
+              Change Theme
+            </label>
+            <ul
+              tabIndex={0}
+              className='dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52'
+            >
+              {themes.map((theme) => (
+                <li
+                  key={theme}
+                  onClick={() => changeTheme(theme)}
+                >
+                  <a>{capitalizeString(theme)}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <button
             className='btn btn-primary'
             onClick={handleLogout}
@@ -64,7 +108,9 @@ function App() {
         </div>
       )}
       <div className='flex flex-col justify-center align-middle items-center mt-6'>
-        <h2 className='text-3xl text-center mb-10'>Cyberpunk Todo</h2>
+        <h2 className='text-3xl text-center mb-10'>
+          {capitalizeString(theme)} Todo
+        </h2>
         <div className='card w-7/12 bg-neutral text-neutral-content py-2 px-7 mb-10'>
           <div className='card-body'>
             <TaskInput handleShowErrorMessage={handleShowErrorMessage} />
