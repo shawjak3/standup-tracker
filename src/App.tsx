@@ -16,9 +16,8 @@ export interface Todo {
 
 function App() {
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [isFetchingTasks, setIsFetchingTasks] = useState<boolean>(false);
-  const user = useAtomValue(userAtom);
   const navigate = useNavigate();
+  const user = useAtomValue(userAtom);
 
   const handleShowErrorMessage = (error: string) => {
     setErrorMessage(error);
@@ -26,10 +25,6 @@ function App() {
     setTimeout(() => {
       setErrorMessage('');
     }, 5000);
-  };
-
-  const triggerTaskFetch = () => {
-    setIsFetchingTasks(!isFetchingTasks);
   };
 
   const handleLogout = async () => {
@@ -68,20 +63,13 @@ function App() {
           </button>
         </div>
       )}
-      <div className='flex flex-col justify-center align-middle w-5/6 mt-6 mx-auto'>
+      <div className='flex flex-col justify-center align-middle items-center mt-6'>
         <h2 className='text-3xl text-center mb-10'>Cyberpunk Todo</h2>
-        <div className='card w-full bg-neutral text-neutral-content py-2 px-7'>
+        <div className='card w-7/12 bg-neutral text-neutral-content py-2 px-7 mb-10'>
           <div className='card-body'>
-            <TaskInput
-              handleShowErrorMessage={handleShowErrorMessage}
-              triggerTaskFetch={triggerTaskFetch}
-            />
+            <TaskInput handleShowErrorMessage={handleShowErrorMessage} />
 
-            <TaskList
-              handleShowErrorMessage={handleShowErrorMessage}
-              triggerTaskFetch={triggerTaskFetch}
-              isFetchingTasks={isFetchingTasks}
-            />
+            <TaskList handleShowErrorMessage={handleShowErrorMessage} />
           </div>
         </div>
       </div>

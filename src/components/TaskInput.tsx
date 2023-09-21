@@ -2,25 +2,20 @@ import { KeyboardEvent, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '@/lib/atoms';
+import { useMutation, useQueryClient } from 'react-query';
 
 interface TaskInputProps {
   handleShowErrorMessage(message: string): void;
-  triggerTaskFetch(): void;
 }
 
 export const TaskInput = (props: TaskInputProps) => {
-  const { handleShowErrorMessage, triggerTaskFetch } = props;
+  const { handleShowErrorMessage } = props;
   const [taskMessage, setTaskMessage] = useState<string>('');
   const user = useAtomValue(userAtom);
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleTodoAdd();
-    }
-  };
+  const queryClient = useQueryClient();
 
   const handleTodoAdd = async () => {
-    if (user.id === '') return;
+    if (!user) return;
     if (taskMessage.length < 3) {
       handleShowErrorMessage(
         'Your todo message needs to be longer than 3 characters'
@@ -32,10 +27,21 @@ export const TaskInput = (props: TaskInputProps) => {
         .select();
       if (error) {
         handleShowErrorMessage(error.message);
-      } else {
-        triggerTaskFetch();
-        setTaskMessage('');
       }
+    }
+  };
+
+  const mutation = useMutation({
+    mutationFn: handleTodoAdd,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+      setTaskMessage('');
+    },
+  });
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      mutation.mutate();
     }
   };
 

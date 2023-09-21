@@ -1,6 +1,6 @@
 import { MouseEvent, useState } from 'react';
 import { supabase } from './lib/supabase';
-import { SuccessToast } from '@/components';
+import { ErrorToast, SuccessToast } from '@/components';
 
 const Login = () => {
   const [email, setEmail] = useState<string>('');
@@ -38,6 +38,7 @@ const Login = () => {
 
   return (
     <>
+      <ErrorToast errorMessage={errorMessage} />
       <SuccessToast message={successMessage} />
 
       <section>

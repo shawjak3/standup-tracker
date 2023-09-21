@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
-import { Navigate, redirect, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { userAtom } from './lib/atoms';
 import { supabase } from './lib/supabase';
 

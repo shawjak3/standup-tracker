@@ -1,25 +1,20 @@
-import { useEffect, useState } from 'react';
-import { Todo } from '../App';
+import { useState } from 'react';
 import TaskItem from './TaskItem';
-import { supabase } from '../lib/supabase';
 import { FilterButtonGroup } from './FilterButtonGroup';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '@/lib/atoms';
+import { useTodos } from '@/lib/hooks';
 
 interface TaskListProps {
   handleShowErrorMessage(message: string): void;
-  triggerTaskFetch(): void;
-  isFetchingTasks: boolean;
 }
 
 export const TaskList = (props: TaskListProps) => {
-  const { handleShowErrorMessage, triggerTaskFetch, isFetchingTasks } = props;
-
-  const [incompleteTodos, setIncompleteTodos] = useState<Todo[]>([]);
-  const [completedTodos, setCompletedTodos] = useState<Todo[]>([]);
+  const { handleShowErrorMessage } = props;
   const [filterDate, setFilterDate] = useState<Date>(new Date());
   const [activeBtn, setActiveBtn] = useState<number>(0);
   const user = useAtomValue(userAtom);
+  const { completedTodos, incompleteTodos, isLoading, error } = useTodos(user);
 
   const handleFilterDate = (day: number) => {
     const currentDay: Date = new Date();
@@ -44,27 +39,13 @@ export const TaskList = (props: TaskListProps) => {
     }
   };
 
-  const fetchTasks = async () => {
-    if (user.id === '') return;
+  if (error && error instanceof Error) {
+    handleShowErrorMessage(error.message);
+  }
 
-    let { data: todos, error } = await supabase
-      .from('todos')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('inserted_at', { ascending: false });
-    if (error) {
-      handleShowErrorMessage(error.message);
-    } else {
-      if (todos) {
-        setCompletedTodos(todos.filter((todo) => todo.is_complete === true));
-        setIncompleteTodos(todos.filter((todo) => todo.is_complete === false));
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchTasks();
-  }, [isFetchingTasks, user]);
+  if (isLoading) {
+    return <div>Is Loading...</div>;
+  }
 
   return (
     <>
@@ -77,7 +58,6 @@ export const TaskList = (props: TaskListProps) => {
                 key={todo.id}
                 task={todo}
                 handleShowErrorMessage={handleShowErrorMessage}
-                handleTaskUpdate={triggerTaskFetch}
               />
             ))
         ) : (
@@ -104,7 +84,6 @@ export const TaskList = (props: TaskListProps) => {
                 key={todo.id}
                 task={todo}
                 handleShowErrorMessage={handleShowErrorMessage}
-                handleTaskUpdate={triggerTaskFetch}
               />
             ))
         ) : (

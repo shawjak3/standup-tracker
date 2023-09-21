@@ -4,18 +4,19 @@ import { supabase } from '../lib/supabase';
 import classNames from 'classnames';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '@/lib/atoms';
+import { useMutation, useQueryClient } from 'react-query';
 
 interface ITaskItemProps {
   task: Todo;
   handleShowErrorMessage(message: string): void;
-  handleTaskUpdate(): void;
 }
 
 const TaskItem = (props: ITaskItemProps) => {
-  const { task, handleShowErrorMessage, handleTaskUpdate } = props;
+  const { task, handleShowErrorMessage } = props;
   const [isCompleted, setIsCompleted] = useState<boolean>(task.is_complete!);
   const [completedDate, setCompletedDate] = useState<Date>(task.completed_at!);
   const user = useAtomValue(userAtom);
+  const queryClient = useQueryClient();
 
   let taskItemClasses = classNames('flex-1', {
     'line-through': isCompleted,
@@ -37,29 +38,38 @@ const TaskItem = (props: ITaskItemProps) => {
       .select();
     if (error) {
       handleShowErrorMessage(error.message);
-    } else {
-      handleTaskUpdate();
     }
   };
+
+  const completeMutation = useMutation({
+    mutationFn: handleCompletion,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+  });
 
   const handleDelete = async (id: number) => {
     if (user.id === '') return;
     if (!id) return;
 
     try {
-      const { data: todo, error } = await supabase
+      await supabase
         .from('todos')
         .delete()
         .eq('id', id)
         .eq('user_id', user.id)
         .select();
-      if (todo) {
-        handleTaskUpdate();
-      }
     } catch (error) {
       handleShowErrorMessage(error as string);
     }
   };
+
+  const deleteMutation = useMutation({
+    mutationFn: (variables: { id: number }) => handleDelete(variables.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+  });
 
   if (!task) {
     return null;
@@ -71,7 +81,7 @@ const TaskItem = (props: ITaskItemProps) => {
         type='checkbox'
         checked={isCompleted}
         className='checkbox checkbox-primary mr-4'
-        onChange={handleCompletion}
+        onChange={() => completeMutation.mutate()}
       />
       <span className={taskItemClasses}>{task.task}</span>
       <span className='text-accent'>
@@ -79,7 +89,7 @@ const TaskItem = (props: ITaskItemProps) => {
       </span>
       <button
         className='btn btn-outline btn-error btn-circle btn-sm ml-4'
-        onClick={() => handleDelete(task.id!)}
+        onClick={() => deleteMutation.mutate({ id: task.id! })}
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'
