@@ -41,7 +41,7 @@ const Login = () => {
       <ErrorToast errorMessage={errorMessage} />
       <SuccessToast message={successMessage} />
 
-      <section>
+      <main>
         <div className='flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0'>
           <div className='card bg-neutral text-neutral-content py-2 px-7'>
             <div className='card-body'>
@@ -79,7 +79,7 @@ const Login = () => {
             </div>
           </div>
         </div>
-      </section>
+      </main>
     </>
   );
 };

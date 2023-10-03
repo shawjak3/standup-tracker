@@ -72,7 +72,7 @@ function App() {
   }, []);
 
   return (
-    <>
+    <main>
       <ErrorToast errorMessage={errorMessage} />
 
       {user && (
@@ -119,7 +119,7 @@ function App() {
           </div>
         </div>
       </div>
-    </>
+    </main>
   );
 }
 
