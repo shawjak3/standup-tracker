@@ -19,11 +19,11 @@ export const FilterButtonGroup = (props: FilterButtonGroupProps) => {
   });
 
   return (
-    <div className='flex justify-between'>
+    <div className='flex flex-col justify-center sm:flex-row sm:justify-between'>
       <h3 className='text-secondary text-xl text-center underline mt-4 mb-2'>
         DONE
       </h3>
-      <div className='btn-group'>
+      <div className='btn-group flex justify-center'>
         <button
           className={dayBeforeBtnClasses}
           onClick={() => handleFilterDate(2)}

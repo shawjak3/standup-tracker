@@ -111,7 +111,7 @@ function App() {
         <h2 className='text-3xl text-center mb-10'>
           {capitalizeString(theme)} Todo
         </h2>
-        <div className='card w-7/12 bg-neutral text-neutral-content py-2 px-7 mb-10'>
+        <div className='card w-11/12 xl:w-7/12 bg-neutral text-neutral-content py-2 px-7 mb-10'>
           <div className='card-body'>
             <TaskInput handleShowErrorMessage={handleShowErrorMessage} />
 
